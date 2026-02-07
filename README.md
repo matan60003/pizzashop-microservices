@@ -1,13 +1,11 @@
 # 🍕 Pizza Order System - EX3 (Full-Stack Microservices)
 
-**Student Name:** Matan Owadeyah  
-**ID:** 322659079
 
 ## 🚀 Project Overview
 
 This project is a distributed pizza ordering system built with a Microservices architecture. It includes a FastAPI backend, an Nginx frontend, and an asynchronous task processing system using Redis and a background Worker.
 
-### Key Features (EX3 Enhancements):
+### Key Features:
 
 - **Microservices Orchestration**: All services run seamlessly using Docker Compose.
 - **Asynchronous Processing**: Orders are sent to a **Redis** queue and processed by a dedicated **Worker** service.
