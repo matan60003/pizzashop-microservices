@@ -1,0 +1,38 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html
+    depends_on:
+      - api
+
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+
+  worker:
+    build: ./backend
+    # התיקון: אנחנו אומרים לדוקר לעבוד מתוך תיקיית /app
+    working_dir: /app
+    # עכשיו פייתון ימצא את scripts/refresh.py בקלות
+    command: python scripts/refresh.py
+    volumes:
+      - ./backend:/app
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PYTHONPATH=/app
+    depends_on:
+      - redis
+      - api
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"

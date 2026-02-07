@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizza Shop - EX3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 font-sans leading-normal tracking-normal" dir="rtl">
+    <div class="max-w-md mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-red-600">🍕 הפיצה של מתן</h1>
+        <p class="text-slate-500 text-sm italic">מערכת הזמנות חכמה</p>
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1"
+            >בחר פיצה</label
+          >
+          <select
+            id="pizzaName"
+            onchange="updatePrice()"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+          >
+            <option value="" disabled selected>בחר מהתפריט...</option>
+            <option value="Margherita" data-price="45">מרגריטה (45 ₪)</option>
+            <option value="Pepperoni" data-price="55">פפרוני (55 ₪)</option>
+            <option value="Greek" data-price="50">יוונית (50 ₪)</option>
+            <option value="Bianca" data-price="60">ביאנקה (60 ₪)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1"
+            >גודל</label
+          >
+          <select
+            id="pizzaSize"
+            onchange="updatePrice()"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+          >
+            <option value="S">Small (ללא תוספת)</option>
+            <option value="M" selected>Medium (+10 ₪)</option>
+            <option value="L">Large (+20 ₪)</option>
+          </select>
+        </div>
+
+        <div class="bg-red-50 p-3 rounded-lg text-center">
+          <span class="text-slate-700 font-medium">מחיר סופי: </span>
+          <span id="totalPriceDisplay" class="text-2xl font-bold text-red-600"
+            >0</span
+          >
+          <span class="text-red-600 font-bold"> ₪</span>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1"
+            >איך תרצה לקבל את הפיצה?</label
+          >
+          <div class="flex gap-4">
+            <label
+              class="flex-1 text-center border p-2 rounded-lg cursor-pointer hover:bg-slate-50"
+            >
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="Pickup"
+                checked
+                onclick="toggleDeliveryFields(false)"
+              />
+              <span class="mr-2">איסוף עצמי</span>
+            </label>
+            <label
+              class="flex-1 text-center border p-2 rounded-lg cursor-pointer hover:bg-slate-50"
+            >
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="Delivery"
+                onclick="toggleDeliveryFields(true)"
+              />
+              <span class="mr-2">משלוח</span>
+            </label>
+          </div>
+        </div>
+
+        <div
+          id="deliveryFields"
+          class="hidden space-y-3 bg-blue-50 p-4 rounded-lg"
+        >
+          <input
+            id="city"
+            type="text"
+            placeholder="עיר (אנגלית מומלץ)"
+            class="w-full px-3 py-2 border rounded-md outline-none"
+          />
+          <input
+            id="address"
+            type="text"
+            placeholder="כתובת (אנגלית מומלץ)"
+            class="w-full px-3 py-2 border rounded-md outline-none"
+          />
+          <input
+            id="phone"
+            type="tel"
+            placeholder="מספר טלפון נייד"
+            class="w-full px-3 py-2 border rounded-md outline-none"
+          />
+        </div>
+
+        <button
+          onclick="placeOrder()"
+          class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95"
+        >
+          בצע הזמנה עכשיו
+        </button>
+      </div>
+
+      <div id="statusMsg" class="mt-4 text-center text-sm font-bold"></div>
+    </div>
+
+    <script>
+      const MY_TOKEN =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXRhbjYwMDAzIiwiZXhwIjoxNzcwNDc0NTk4fQ.pPskF4T9QOA358ZrQxwc4CgUoxu-B7zRuixk0ysXxCw";
+
+      function updatePrice() {
+        const pizzaSelect = document.getElementById("pizzaName");
+        if (!pizzaSelect || pizzaSelect.selectedIndex === -1) return;
+        const selectedOption = pizzaSelect.options[pizzaSelect.selectedIndex];
+        const basePrice = parseFloat(
+          selectedOption.getAttribute("data-price") || 0,
+        );
+        const size = document.getElementById("pizzaSize").value;
+        let sizeExtra = size === "M" ? 10 : size === "L" ? 20 : 0;
+        document.getElementById("totalPriceDisplay").innerText =
+          basePrice + sizeExtra;
+      }
+
+      function toggleDeliveryFields(show) {
+        document
+          .getElementById("deliveryFields")
+          .classList.toggle("hidden", !show);
+      }
+
+      async function placeOrder() {
+        const statusMsg = document.getElementById("statusMsg");
+        const pizzaSelect = document.getElementById("pizzaName");
+
+        const payload = {
+          name: pizzaSelect.value,
+          size: document.getElementById("pizzaSize").value,
+          price: parseFloat(
+            document.getElementById("totalPriceDisplay").innerText,
+          ),
+          delivery_method: document.querySelector(
+            'input[name="deliveryMethod"]:checked',
+          ).value,
+          city: document.getElementById("city").value || null,
+          address: document.getElementById("address").value || null,
+          phone: document.getElementById("phone").value || null,
+        };
+
+        try {
+          const response = await fetch("http://localhost:8000/items", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + MY_TOKEN.trim(),
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            statusMsg.innerText = "✅ ההזמנה נשלחה בהצלחה!";
+            statusMsg.className = "mt-4 text-center text-green-600 font-bold";
+          } else {
+            statusMsg.innerText =
+              "❌ שגיאת אימות (401) - תפיק טוקן חדש ב-Swagger";
+            statusMsg.className = "mt-4 text-center text-red-500 font-bold";
+          }
+        } catch (err) {
+          statusMsg.innerText = "❌ אין תקשורת עם השרת";
+          statusMsg.className = "mt-4 text-center text-red-500 font-bold";
+        }
+      }
+    </script>
+  </body>
+</html>
