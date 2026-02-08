@@ -1,4 +1,4 @@
-# 🍕 Pizza Order System - EX3 (Full-Stack Microservices)
+# 🍕 Pizza Order System (Full-Stack Microservices)
 
 
 ## 🚀 Project Overview
